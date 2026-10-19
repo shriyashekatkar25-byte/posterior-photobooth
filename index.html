@@ -1,0 +1,577 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Week One Photobooth</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Rozha+One&family=Kalam:wght@400;700&family=Hind:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a velvet photobooth. Each lecture day is a vertical photo strip of 4 "poses" (concepts) beside a live booth.
+   Identity from the Pinterest feed: sindoor red + marigold + zari gold, bandhani dots, line-art paisley, pastel sneaker tints, blob doodles, film grain. Single deliberate dark (curtain) look. */
+:root{
+  color-scheme:dark;
+  --curtain:#2A0E1C; --curtain-2:#3B1428; --curtain-3:#1C0913;
+  --paper:#FFF8EC; --ink:#1F1418; --ink-soft:#6E5A60;
+  --sindoor:#D7263D; --marigold:#F4A300; --zari:#E0B04A; --zari-dim:#9E7A2C;
+  --blush:#F7C9D4; --powder:#C2D7F2; --pista:#D3E6B8; --butter:#F6E59D; --lilac:#DCCDF2;
+  --on-curtain:#FBEFE3; --on-curtain-soft:#D9BFC8;
+  --f-display:"Yatra One","Rozha One",Georgia,serif;
+  --f-num:"Rozha One",Georgia,serif;
+  --f-deva:"Tiro Devanagari Hindi","Yatra One",serif;
+  --f-hand:"Kalam","Comic Sans MS",cursive;
+  --f-body:"Hind",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+*{box-sizing:border-box}
+html{background:var(--curtain-3)}
+body{
+  color:var(--on-curtain);font-family:var(--f-body);font-size:17px;line-height:1.6;
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(244,163,0,.14), transparent 60%),
+    repeating-linear-gradient(90deg, var(--curtain) 0 38px, var(--curtain-2) 38px 62px, var(--curtain) 62px 96px, var(--curtain-3) 96px 104px),
+    var(--curtain);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background-image:var(--grain);opacity:.22;mix-blend-mode:overlay;z-index:50}
+.wrap{max-width:1160px;margin:0 auto;padding-block:26px 70px;display:flex;flex-direction:column;gap:60px;position:relative}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+.hand{font-family:var(--f-hand);font-weight:700}
+.deva{font-family:var(--f-deva)}
+.mono{font-family:var(--f-mono)}
+.math{font-family:Georgia,"Times New Roman",serif;font-style:italic;white-space:nowrap}
+:focus-visible{outline:3px solid var(--marigold);outline-offset:3px}
+button{font:inherit;cursor:pointer}
+
+/* ---- textile bands ---- */
+.bandhani{height:22px;border-radius:4px;
+  background:
+    radial-gradient(circle at 50% 50%, var(--butter) 0 2.4px, transparent 3px) 0 0/18px 22px,
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.85) 0 1.6px, transparent 2.2px) 9px 11px/18px 22px,
+    var(--sindoor)}
+.zari{height:12px;background:repeating-linear-gradient(90deg,var(--zari) 0 6px,var(--zari-dim) 6px 8px,var(--zari) 8px 14px,var(--sindoor) 14px 18px);opacity:.95}
+
+/* ---- hero marquee ---- */
+.marquee{position:relative;border-radius:30px;padding:clamp(26px,5vw,52px) clamp(18px,4vw,48px);
+  background:linear-gradient(180deg,#3D1229,#250A18);
+  box-shadow:0 0 0 2px var(--zari-dim), 0 30px 80px -30px rgba(0,0,0,.8), inset 0 0 80px rgba(244,163,0,.10);
+  display:grid;grid-template-columns:1.3fr .9fr;gap:30px;align-items:center;overflow:hidden}
+.marquee::before{content:"";position:absolute;inset:10px;border-radius:22px;pointer-events:none;
+  background:
+    radial-gradient(circle,#FFE6A6 0 3.5px,rgba(244,163,0,.55) 4.5px,transparent 8px) top left/26px 26px repeat-x,
+    radial-gradient(circle,#FFE6A6 0 3.5px,rgba(244,163,0,.55) 4.5px,transparent 8px) bottom left/26px 26px repeat-x;
+  animation:bulbs 2.4s steps(2) infinite}
+@keyframes bulbs{50%{filter:brightness(.6)}}
+.marquee-text{display:flex;flex-direction:column;gap:14px;min-width:0;position:relative}
+.kicker{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--marigold)}
+.marquee h1{font-size:clamp(52px,10vw,118px);color:var(--zari);text-shadow:0 0 28px rgba(244,163,0,.45),0 3px 0 #7A1426}
+.marquee h1 span{display:block;font-size:.42em;color:var(--on-curtain);text-shadow:none;margin-top:6px}
+.deva-line{font-size:clamp(20px,2.6vw,28px);color:var(--blush)}
+.lede{max-width:54ch;color:var(--on-curtain-soft)}
+.tickets{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.ticket{font-family:var(--f-mono);font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);padding:9px 16px;
+  background:var(--butter);clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%)}
+.ticket.b{background:var(--powder)} .ticket.g{background:var(--pista)}
+.ticket:hover{background:var(--marigold)}
+.hero-strip{justify-self:center;transform:rotate(4deg)}
+.hero-strip .shot{min-height:96px;display:grid;place-items:center}
+
+/* ---- photo strip ---- */
+.strip{background:var(--paper);color:var(--ink);padding:14px 14px 10px;border-radius:6px;width:min(100%,370px);
+  display:flex;flex-direction:column;gap:12px;position:relative;
+  box-shadow:0 26px 50px -20px rgba(0,0,0,.75),0 2px 0 rgba(255,255,255,.4) inset;transition:transform .35s ease}
+.strip.tilt-l{transform:rotate(-1.6deg)} .strip.tilt-r{transform:rotate(1.4deg)}
+.strip:hover{transform:rotate(0)}
+.strip::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.10;pointer-events:none;border-radius:6px}
+.tape{position:absolute;top:-14px;left:50%;width:96px;height:28px;transform:translateX(-50%) rotate(-3deg);
+  background:repeating-linear-gradient(45deg,rgba(247,201,212,.85) 0 8px,rgba(255,255,255,.75) 8px 16px);opacity:.9}
+.shot{position:relative;border-radius:3px;padding:16px 16px 14px;overflow:hidden;display:flex;flex-direction:column;gap:8px}
+.shot::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--grain),radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(40,10,20,.22));background-size:180px,cover;opacity:.55;mix-blend-mode:multiply}
+.shot>*{position:relative;z-index:1}
+.t-blush{background:var(--blush)} .t-powder{background:var(--powder)} .t-pista{background:var(--pista)} .t-butter{background:var(--butter)} .t-lilac{background:var(--lilac)}
+.leopard{background:
+  radial-gradient(ellipse 7px 5px at 20% 30%,#5a3a1a 60%,transparent 62%) 0 0/46px 40px,
+  radial-gradient(ellipse 6px 4px at 70% 70%,#5a3a1a 60%,transparent 62%) 0 0/46px 40px,
+  radial-gradient(ellipse 11px 8px at 20% 30%,#c58a3e 60%,transparent 62%) 0 0/46px 40px,
+  radial-gradient(ellipse 10px 7px at 70% 70%,#c58a3e 60%,transparent 62%) 0 0/46px 40px,
+  #E8C998}
+.pose{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:flex;justify-content:space-between}
+.shot h3{font-size:24px;color:var(--ink)}
+.shot p{font-size:15.5px;line-height:1.5}
+.shot .hand{font-size:19px;color:var(--sindoor);line-height:1.2}
+.eq{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:18px;background:rgba(255,255,255,.6);border-radius:8px;padding:8px 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.88em;line-height:1.15;margin:0 3px}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 4px}
+.stamp{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--ink-soft);display:flex;justify-content:space-between;padding-top:2px}
+
+/* ---- day sections ---- */
+.day{display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,4vw,56px);align-items:start}
+.day-head{display:flex;flex-direction:column;gap:10px;grid-column:1/-1}
+.day-head .kicker{color:var(--blush)}
+.day-head h2{font-size:clamp(34px,5vw,56px);color:var(--on-curtain)}
+.day-head h2 em{font-style:normal;color:var(--marigold)}
+.side{display:flex;flex-direction:column;gap:22px;min-width:0}
+
+/* ---- booth (interactive) ---- */
+.booth{background:linear-gradient(180deg,#140710,#22091A);border-radius:26px;padding:clamp(18px,3vw,28px);
+  box-shadow:0 0 0 2px var(--zari-dim),inset 0 0 60px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:18px;position:relative;overflow:hidden}
+.booth-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.booth-top>div{display:flex;flex-direction:column;gap:6px;min-width:0;max-width:56ch}
+.booth h3{font-size:30px;color:var(--zari)}
+.booth .sub{color:var(--on-curtain-soft);font-size:15.5px}
+.lens{width:64px;height:64px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 35% 35%,#8fb3ff 0 4px,transparent 6px),radial-gradient(circle,#0b0710 0 40%,#2b2133 41% 52%,#0b0710 53% 62%,var(--zari-dim) 63% 70%,#120810 71%)}
+.lbl{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--marigold)}
+.poses{display:flex;flex-wrap:wrap;gap:10px}
+.sticker{border:0;border-radius:999px;padding:8px 16px 8px 8px;display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:600;font-size:14.5px;
+  box-shadow:0 4px 0 rgba(0,0,0,.35);transition:transform .15s}
+.sticker .face{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.sticker small{display:block;font-family:var(--f-mono);font-size:11px;font-weight:400;color:var(--ink-soft)}
+.sticker[aria-pressed="true"]{outline:3px solid var(--marigold);outline-offset:2px;transform:translateY(-2px)}
+.booth-grid{display:grid;grid-template-columns:1fr minmax(260px,330px);gap:22px;align-items:start}
+.booth-left{display:flex;flex-direction:column;gap:18px;min-width:0}
+.shutter-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.shutter{width:96px;height:96px;border-radius:50%;border:0;flex:none;color:#fff;font-family:var(--f-display);font-size:20px;line-height:1;
+  background:radial-gradient(circle at 40% 35%,#ff6b7d,var(--sindoor) 55%,#8c0f22);box-shadow:0 0 0 6px #2a0d1a,0 0 0 8px var(--zari-dim),0 8px 24px rgba(215,38,61,.45)}
+.shutter:active{transform:scale(.95)}
+.shutter small{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;margin-top:4px;opacity:.9}
+.coins{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;align-items:center}
+.coin{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-num);font-size:15px}
+.coin.h{background:radial-gradient(circle at 35% 30%,#ffe9a8,var(--zari) 60%,var(--zari-dim));color:#5b3a06}
+.coin.t{border:2px solid var(--on-curtain-soft);color:var(--on-curtain-soft)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.ro{background:rgba(255,248,236,.06);border:1px solid rgba(224,176,74,.25);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.ro span{font-size:12px;color:var(--on-curtain-soft);font-weight:600}
+.ro b{font-family:var(--f-mono);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;color:var(--on-curtain)}
+.ro.hot{background:rgba(215,38,61,.18);border-color:rgba(215,38,61,.5)}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap}
+.pill{border:1px solid var(--zari-dim);background:transparent;color:var(--on-curtain);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600}
+.pill:hover{background:rgba(224,176,74,.15)}
+.booth-strip{width:100%;transform:rotate(1.2deg)}
+.booth-strip .shot{padding:10px 10px 8px;gap:4px;min-height:132px}
+.booth-strip canvas{width:100%;height:92px;display:block}
+.booth-strip .cap{font-family:var(--f-mono);font-size:11px;color:var(--ink);display:flex;justify-content:space-between}
+.empty-shot{display:grid;place-items:center;text-align:center;color:var(--ink-soft);font-family:var(--f-hand);font-size:18px;background:repeating-linear-gradient(135deg,#efe6d6 0 10px,#f6eee0 10px 20px)}
+.dev{animation:develop 1.4s ease-out}
+@keyframes develop{from{filter:sepia(1) brightness(1.5) blur(3px);opacity:.6}to{filter:none;opacity:1}}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:60}
+#flash.go{animation:flash .45s ease-out}
+@keyframes flash{0%{opacity:.85}100%{opacity:0}}
+
+/* pi booth */
+.pi-box{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:20px;align-items:center}
+.pi-box canvas{width:100%;aspect-ratio:1;max-width:100%;display:block;border-radius:8px;background:var(--paper)}
+
+/* note card + doodles */
+.note{background:var(--paper);color:var(--ink);border-radius:18px;padding:18px 20px;position:relative;transform:rotate(-1deg)}
+.note::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.1;border-radius:18px;pointer-events:none}
+.note .hand{color:var(--sindoor);font-size:22px}
+.doodle{width:120px;height:auto;flex:none}
+
+/* next week */
+.next{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;background:var(--paper);color:var(--ink);border-radius:22px;padding:clamp(18px,3vw,30px);position:relative;overflow:hidden}
+.next::after{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.1;pointer-events:none}
+.next h2{font-size:clamp(28px,4vw,40px)}
+.foot{font-size:13.5px;color:var(--on-curtain-soft);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid rgba(224,176,74,.25);padding-top:18px}
+
+@media (max-width:920px){
+  .marquee,.day,.booth-grid,.next{grid-template-columns:1fr}
+  .hero-strip{transform:rotate(2deg)}
+  .strip{margin-inline:auto}
+}
+@media (max-width:520px){ .pi-box{grid-template-columns:1fr} .booth-strip{transform:none} .doodle{display:none} }
+@media (prefers-reduced-motion:reduce){ .marquee::before{animation:none} .dev{animation:none} #flash.go{animation:none} .strip{transition:none} }
+
+/* ===== EXTREME LAYER ===== */
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{z-index:1}
+.marquee h1{background:linear-gradient(100deg,#FFF2C9 0%,#F4A300 18%,#FF4F7B 34%,#FFE6A6 50%,#E0B04A 66%,#FF8A3D 82%,#FFF2C9 100%) 0 0/300% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;
+  filter:drop-shadow(0 3px 0 #7A1426) drop-shadow(0 6px 0 #4A0B18) drop-shadow(0 0 26px rgba(244,163,0,.55));animation:foil 7s linear infinite}
+.marquee h1 span{-webkit-text-fill-color:var(--on-curtain);filter:none}
+@keyframes foil{to{background-position:300% 0}}
+.mandala{position:absolute;right:-140px;top:-140px;width:520px;height:520px;opacity:.28;pointer-events:none;animation:spin 140s linear infinite}
+.mandala.b{left:-200px;right:auto;top:auto;bottom:-260px;width:440px;height:440px;opacity:.16;animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.day-head h2{text-shadow:-2px 0 rgba(0,230,255,.35),2px 0 rgba(255,30,90,.5),0 0 30px rgba(215,38,61,.35)}
+.shisha{height:46px;border-radius:8px;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 50%,#f4f7ff 0 5px,#9aa7c4 6px,#dfe6f5 8px,transparent 9px) 0 0/46px 46px,
+    radial-gradient(circle at 50% 50%,transparent 9px,var(--zari) 10px 12px,transparent 13px) 0 0/46px 46px,
+    repeating-conic-gradient(from 0deg at 50% 50%,transparent 0 10deg,rgba(244,163,0,.55) 10deg 14deg) 0 0/46px 46px,
+    radial-gradient(circle at 50% 50%,transparent 15px,#FF4F7B 16px 17px,transparent 18px) 23px 23px/46px 46px,
+    linear-gradient(90deg,#5B0E3A,#8A1240,#5B0E3A)}
+.shisha::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.55) 45%,transparent 60%) -100% 0/60% 100% no-repeat;animation:glint 4.5s ease-in-out infinite}
+@keyframes glint{to{background-position:260% 0}}
+.shot::before{content:"";position:absolute;inset:-20%;pointer-events:none;z-index:2;mix-blend-mode:screen;opacity:.55;
+  background:radial-gradient(40% 35% at 0% 10%,rgba(255,120,40,.65),transparent 70%),radial-gradient(30% 30% at 100% 95%,rgba(255,60,140,.45),transparent 70%)}
+.empty-shot::before{display:none}
+.strip{border:1px solid rgba(255,255,255,.6)}
+.strip{box-shadow:0 26px 50px -20px rgba(0,0,0,.75),0 0 26px rgba(255,79,123,.45),0 0 60px rgba(244,163,0,.25),0 0 0 1px rgba(140,240,255,.35)}
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes holo{to{--ang:360deg}}
+.booth{isolation:isolate}
+.booth::before{content:"";position:absolute;inset:0;border-radius:26px;padding:2px;z-index:-1;pointer-events:none;
+  background:conic-gradient(from var(--ang,0deg),#FF4F7B,#F4A300,#E0B04A,#8CF0FF,#C79BFF,#FF4F7B);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:holo 5s linear infinite}
+.booth::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:26px;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),radial-gradient(80% 60% at 50% 0%,rgba(244,163,0,.10),transparent 70%)}
+.booth>*{position:relative;z-index:1}
+.sticker{background-image:linear-gradient(120deg,rgba(255,255,255,.55),rgba(255,255,255,0) 40%,rgba(140,240,255,.35) 60%,rgba(255,79,123,.3) 80%,rgba(255,255,255,.5))}
+.sticker[aria-pressed="true"]{box-shadow:0 4px 0 rgba(0,0,0,.35),0 0 24px rgba(244,163,0,.7)}
+.shutter{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px #2a0d1a,0 0 0 8px var(--zari),0 0 40px rgba(255,79,123,.8)}}
+.lens{box-shadow:0 0 22px rgba(140,180,255,.45)}
+.note{background:var(--paper) linear-gradient(transparent 31px,rgba(215,38,61,.12) 32px) 0 0/100% 32px}
+.ticket{box-shadow:0 0 18px rgba(244,163,0,.35)}
+@media (prefers-reduced-motion:reduce){.marquee h1,.mandala,.shisha::after,.booth::before,.shutter{animation:none}}
+</style>
+
+<div id="flash" aria-hidden="true"></div>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="wrap">
+
+<!-- ================= MARQUEE ================= -->
+<header class="marquee">
+  <svg class="mandala" id="mand1" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+  <svg class="mandala b" id="mand2" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+  <div class="marquee-text">
+    <span class="kicker">Stats 102C · Fall 2026 · Week 1</span>
+    <h1>Photo Booth<span>Intro &amp; Bayesian Stats</span></h1>
+    <p class="deva deva-line">सप्ताह १ · सांख्यिकी</p>
+    <p class="lede">Two lectures, eight poses, one booth. Day 1 asks what Monte Carlo even is. Day 2 introduces the Bayesian way of thinking, and shows why the rest of the quarter is about sampling.</p>
+    <div class="tickets">
+      <a class="ticket" href="#day1">Tue 9/29 · Intro</a>
+      <a class="ticket b" href="#day2">Thu 10/1 · Bayes</a>
+      <a class="ticket g" href="#booth">Step into the booth</a>
+    </div>
+  </div>
+  <div class="strip hero-strip" aria-hidden="true">
+    <div class="tape"></div>
+    <div class="shot leopard"><p class="hand" style="font-size:26px;color:#3a1e08;background:var(--paper);padding:2px 12px;border-radius:4px;transform:rotate(-3deg)">say “posterior!”</p></div>
+    <div class="shot t-blush">
+      <svg viewBox="0 0 200 80" width="100%" height="80"><g fill="none" stroke="#1F1418" stroke-width="2.4" stroke-linecap="round">
+        <ellipse cx="60" cy="48" rx="34" ry="26" fill="#fff"/><ellipse cx="142" cy="44" rx="30" ry="28" fill="#fff"/>
+        <path d="M86 40 q14 -14 30 -4"/></g>
+        <g fill="#1F1418"><ellipse cx="50" cy="44" rx="3.5" ry="5"/><ellipse cx="68" cy="44" rx="3.5" ry="5"/><ellipse cx="134" cy="40" rx="3.5" ry="5"/><ellipse cx="152" cy="40" rx="3.5" ry="5"/></g>
+        <path d="M53 58 q7 6 14 0 M137 54 q7 6 14 0" stroke="#D7263D" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    </div>
+    <div class="shot t-powder"><p class="hand" style="color:#1F1418;font-size:22px">prior × likelihood</p></div>
+    <div class="stamp"><span>BOOTH 102C</span><span>WK 01</span></div>
+  </div>
+</header>
+
+<div class="bandhani" role="presentation"></div>
+
+<!-- ================= DAY 1 ================= -->
+<section class="day" id="day1" aria-labelledby="d1">
+  <div class="day-head">
+    <span class="kicker">Lecture 1 · Tuesday 9/29</span>
+    <h2 id="d1">Why roll <em>dice</em> to do math?</h2>
+  </div>
+
+  <div class="strip tilt-l">
+    <div class="tape"></div>
+    <div class="shot t-butter">
+      <div class="pose"><span>Pose 1</span><span>✦</span></div>
+      <h3>Monte Carlo, in one breath</h3>
+      <p>Answer a hard question by simulating random outcomes many times and summarizing what happened. The method got its name from the Monte Carlo casino, coined by Ulam and von Neumann in the 1940s.</p>
+    </div>
+    <div class="shot t-pista">
+      <div class="pose"><span>Pose 2</span><span>✦</span></div>
+      <h3>Frequency becomes probability</h3>
+      <p>Repeat an experiment <span class="math">n</span> times. The share of times an event happens settles toward its probability as <span class="math">n</span> grows. That's the Law of Large Numbers doing the work.</p>
+      <p class="hand">more draws → less wobble</p>
+    </div>
+    <div class="shot t-blush">
+      <div class="pose"><span>Pose 3</span><span>✦</span></div>
+      <h3>“Random” on a computer</h3>
+      <p>Software makes <b>pseudo-random</b> numbers: a deterministic sequence that behaves like independent <span class="math">Unif(0, 1)</span> draws. Fix the start with <code class="mono">set.seed()</code> and your results reproduce exactly.</p>
+    </div>
+    <div class="shot t-lilac">
+      <div class="pose"><span>Pose 4</span><span>✦</span></div>
+      <h3>The quarter, in one frame</h3>
+      <p>Uniforms → <b>any distribution</b> (inverse CDF, rejection) → <b>estimates</b> (importance sampling) → <b>Markov chains</b> → <b>MCMC</b> (Metropolis–Hastings, Gibbs).</p>
+    </div>
+    <div class="stamp"><span>29·SEP·2026</span><span>STRIP A</span></div>
+  </div>
+
+  <div class="side">
+    <section class="booth" aria-labelledby="pi-h">
+      <div class="booth-top">
+        <div>
+          <span class="lbl">Mini booth</span>
+          <h3 id="pi-h">Throw darts, catch π</h3>
+          <p class="sub">Darts land uniformly in a 1 × 1 square. The share inside the quarter circle estimates its area, <span class="math">π/4</span>. Multiply by 4 and you have π, with no geometry formula needed.</p>
+        </div>
+        <div class="lens" aria-hidden="true"></div>
+      </div>
+      <div class="pi-box">
+        <canvas id="pi" aria-label="Darts thrown at a quarter circle"></canvas>
+        <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+          <div class="readout">
+            <div class="ro hot"><span>Estimate of π</span><b id="piE">–</b></div>
+            <div class="ro"><span>Darts thrown</span><b id="piN">–</b></div>
+            <div class="ro"><span>Error</span><b id="piErr">–</b></div>
+          </div>
+          <div class="row-btns">
+            <button class="pill" id="pi100" type="button">+100 darts</button>
+            <button class="pill" id="pi1k" type="button">+1,000 darts</button>
+            <button class="pill" id="piReset" type="button">Clear</button>
+          </div>
+          <p class="hand" style="color:var(--blush);font-size:20px">Notice the error shrinks slowly: 100× the darts buys about 10× the accuracy.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      <p class="hand">The whole course in one sentence:</p>
+      <p>If you can write the answer as an <b>average</b> and you can <b>simulate</b> the thing being averaged, you can estimate it.</p>
+    </div>
+  </div>
+</section>
+
+<div class="shisha" role="presentation"></div>
+
+<!-- ================= DAY 2 ================= -->
+<section class="day" id="day2" aria-labelledby="d2">
+  <div class="day-head">
+    <span class="kicker">Lecture 2 · Thursday 10/1</span>
+    <h2 id="d2">Introduction to <em>Bayesian</em> statistics</h2>
+  </div>
+
+  <div class="strip tilt-r">
+    <div class="tape"></div>
+    <div class="shot t-powder">
+      <div class="pose"><span>Pose 1</span><span>✦</span></div>
+      <h3>Two ways to see a parameter</h3>
+      <p><b>Frequentist:</b> the parameter <span class="math">θ</span> is a fixed unknown; only the data are random.</p>
+      <p><b>Bayesian:</b> uncertainty about <span class="math">θ</span> is itself described by a probability distribution, which data then update.</p>
+    </div>
+    <div class="shot t-butter">
+      <div class="pose"><span>Pose 2</span><span>✦</span></div>
+      <h3>Bayes' rule</h3>
+      <div class="eq">p(θ | x) = <span class="frac"><span>p(x | θ) · p(θ)</span><span>p(x)</span></span></div>
+      <p><b>Prior</b> <span class="math">p(θ)</span>: belief before data. <b>Likelihood</b> <span class="math">p(x | θ)</span>: how well each θ explains the data. <b>Posterior</b> <span class="math">p(θ | x)</span>: updated belief.</p>
+      <p class="hand">posterior ∝ likelihood × prior</p>
+    </div>
+    <div class="shot t-pista">
+      <div class="pose"><span>Pose 3</span><span>✦</span></div>
+      <h3>Beta meets Binomial</h3>
+      <p>Coin with heads-probability <span class="math">θ</span>. Prior <span class="math">Beta(a, b)</span>, then <span class="math">k</span> heads in <span class="math">n</span> flips gives</p>
+      <div class="eq">θ | data ~ Beta(a + k, b + n − k)</div>
+      <p>Same family before and after: a <b>conjugate</b> prior. Posterior mean <span class="math">(a + k)/(a + b + n)</span>.</p>
+    </div>
+    <div class="shot t-blush">
+      <div class="pose"><span>Pose 4</span><span>✦</span></div>
+      <h3>The catch → this course</h3>
+      <p>The denominator <span class="math">p(x) = ∫ p(x | θ) p(θ) dθ</span> rarely has a closed form, and posterior summaries like <span class="math">E[θ | x]</span> are more integrals.</p>
+      <p>Solution: <b>draw samples from the posterior</b> and average them. Every method this quarter is a way to do that.</p>
+    </div>
+    <div class="stamp"><span>01·OCT·2026</span><span>STRIP B</span></div>
+  </div>
+
+  <div class="side">
+    <section class="booth" id="booth" aria-labelledby="bb-h">
+      <div class="booth-top">
+        <div>
+          <span class="lbl">The main booth</span>
+          <h3 id="bb-h">Strike a prior, snap some data</h3>
+          <p class="sub">A mystery coin sits in the booth. Pick a prior pose, then hit the shutter: each snap flips 5 coins and develops a new frame showing your updated posterior.</p>
+        </div>
+        <div class="lens" aria-hidden="true"></div>
+      </div>
+
+      <div class="booth-grid">
+        <div class="booth-left">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span class="lbl">1 · Pick your prior pose</span>
+            <div class="poses" id="poses">
+              <button class="sticker t-lilac" type="button" data-a="1" data-b="1" aria-pressed="true"><span class="face">😐</span><span>No opinion<small>Beta(1, 1)</small></span></button>
+              <button class="sticker t-powder" type="button" data-a="2" data-b="6" aria-pressed="false"><span class="face">🤨</span><span>Doubter<small>Beta(2, 6)</small></span></button>
+              <button class="sticker t-blush" type="button" data-a="6" data-b="2" aria-pressed="false"><span class="face">🤩</span><span>Believer<small>Beta(6, 2)</small></span></button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span class="lbl">2 · Snap</span>
+            <div class="shutter-row">
+              <button class="shutter" id="shutter" type="button">Snap<small>FLIP 5</small></button>
+              <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+                <span style="font-size:13px;color:var(--on-curtain-soft)" id="lastLbl">Last snap</span>
+                <div class="coins" id="coins"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span class="lbl">3 · Read the print</span>
+            <div class="readout">
+              <div class="ro"><span>Posterior</span><b id="bPost">–</b></div>
+              <div class="ro hot"><span>Exact posterior mean</span><b id="bMean">–</b></div>
+              <div class="ro"><span>Monte Carlo mean · 5,000 draws</span><b id="bMC">–</b></div>
+              <div class="ro"><span>95% credible interval</span><b id="bCI">–</b></div>
+            </div>
+          </div>
+
+          <div class="row-btns">
+            <button class="pill" id="newStrip" type="button">New strip, new coin</button>
+            <button class="pill" id="reveal" type="button">Reveal the coin</button>
+          </div>
+          <p class="hand" style="color:var(--blush);font-size:19px">Try it: the Doubter and the Believer start far apart, but after a few strips of data their posteriors meet in the middle.</p>
+        </div>
+
+        <div class="strip booth-strip" aria-live="polite">
+          <div class="tape"></div>
+          <div id="frames" style="display:flex;flex-direction:column;gap:10px"></div>
+          <div class="stamp"><span id="stripStamp">BOOTH 102C</span><span>θ ∈ (0, 1)</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="note" style="transform:rotate(1deg)">
+      <p class="hand">Why the Monte Carlo number matters</p>
+      <p>Here the posterior mean has a formula, so you can check that averaging 5,000 posterior draws lands right next to it. In most real models there's no formula, and the draws are all you have.</p>
+    </div>
+  </div>
+</section>
+
+<div class="shisha" role="presentation"></div>
+<div class="bandhani" role="presentation"></div>
+
+<!-- ================= NEXT ================= -->
+<section class="next" aria-labelledby="nx">
+  <div style="display:flex;flex-direction:column;gap:10px;min-width:0;position:relative;z-index:1">
+    <span class="kicker" style="color:var(--sindoor)">Next strip · Week 2</span>
+    <h2 id="nx">Turning uniforms into anything</h2>
+    <p>Tue 10/6: the inverse CDF method. Thu 10/8: rejection sampling. Both answer Pose 4's question of how to draw from the distribution you actually need.</p>
+  </div>
+  <svg class="doodle" viewBox="0 0 120 120" aria-hidden="true" style="position:relative;z-index:1">
+    <path d="M60 14 C 96 14 108 56 90 82 C 74 104 36 106 26 80 C 18 58 40 44 56 56 C 68 66 58 80 48 74" fill="none" stroke="#D7263D" stroke-width="3" stroke-linecap="round"/>
+    <path d="M60 24 C 88 26 96 58 82 76" fill="none" stroke="#E0B04A" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round"/>
+    <circle cx="50" cy="66" r="4" fill="#F4A300"/>
+  </svg>
+</section>
+
+<footer class="foot">
+  <span>Personal study board for Stats 102C Week 1, written from the syllabus topics and standard course material. Keep it private, per the course's sharing policy.</span>
+  <span class="hand" style="color:var(--blush);font-size:18px">waffles, friends, work ♡</span>
+</footer>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  let rng = mulberry32(102);
+  const C = { ink:'#1F1418', soft:'#6E5A60', sindoor:'#D7263D', zari:'#E0B04A', marigold:'#F4A300', powder:'#9DBBE6', blush:'#F1A9BB', paper:'#FFF8EC' };
+  function setup(c){ const r=c.getBoundingClientRect(), d=window.devicePixelRatio||1; c.width=Math.max(1,Math.round(r.width*d)); c.height=Math.max(1,Math.round(r.height*d));
+    const x=c.getContext('2d'); x.setTransform(d,0,0,d,0,0); return {x,w:r.width,h:r.height}; }
+  function flash(){ if(reduce) return; const f=$('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+
+  /* ---------- π booth ---------- */
+  const darts=[];
+  function addDarts(k){ for(let i=0;i<k;i++){ const u=rng(), v=rng(); darts.push([u,v,u*u+v*v<=1]); } drawPi(); }
+  function drawPi(){ const {x,w,h}=setup($('pi')); x.fillStyle=C.paper; x.fillRect(0,0,w,h);
+    x.fillStyle='rgba(247,201,212,.35)'; x.beginPath(); x.moveTo(0,h); x.arc(0,h,w,-Math.PI/2,0); x.closePath(); x.fill();
+    const show=darts.length>4000?darts.slice(-4000):darts; const r=darts.length>2000?1.4:2.2;
+    for(const [u,v,inn] of show){ x.fillStyle=inn?C.sindoor:'#4E7FC4'; x.globalAlpha=.75; x.beginPath(); x.arc(u*w,h-v*h,r,0,7); x.fill(); }
+    x.globalAlpha=1; x.strokeStyle=C.zari; x.lineWidth=3; x.beginPath(); x.arc(0,h,w-1.5,-Math.PI/2,0); x.stroke();
+    const n=darts.length, hit=darts.filter(d=>d[2]).length, est=n?4*hit/n:NaN;
+    $('piE').textContent=n?est.toFixed(4):'–'; $('piN').textContent=n.toLocaleString(); $('piErr').textContent=n?(est-Math.PI>=0?'+':'')+(est-Math.PI).toFixed(4):'–'; }
+  $('pi100').onclick=()=>addDarts(100); $('pi1k').onclick=()=>addDarts(1000); $('piReset').onclick=()=>{ darts.length=0; drawPi(); };
+
+  /* ---------- Bayesian booth ---------- */
+  let prior={a:1,b:1}, coinP=0, shots=[]; // shots: array of {k,n} cumulative per snap
+  const MAXF=4, FLIPS=5;
+  function newCoin(){ coinP=Math.round((0.15+0.7*rng())*100)/100; }
+  function betaGrid(a,b){ const N=600, xs=[], ys=[]; let mx=-Infinity;
+    for(let i=0;i<N;i++){ const t=(i+0.5)/N; const l=(a-1)*Math.log(t)+(b-1)*Math.log(1-t); xs.push(t); ys.push(l); if(l>mx) mx=l; }
+    let s=0; for(let i=0;i<N;i++){ ys[i]=Math.exp(ys[i]-mx); s+=ys[i]; } for(let i=0;i<N;i++) ys[i]=ys[i]/(s/N); return {xs,ys}; }
+  function quant(g,p){ let c=0; const N=g.xs.length; for(let i=0;i<N;i++){ c+=g.ys[i]/N; if(c>=p) return g.xs[i]; } return 1; }
+  function rgamma(k){ const d=k-1/3, c=1/Math.sqrt(9*d); for(;;){ let x,v; do{ const u1=rng()||1e-12,u2=rng(); x=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2); v=1+c*x; }while(v<=0); v=v*v*v; const u=rng(); if(Math.log(u)<0.5*x*x+d-d*v+d*Math.log(v)) return d*v; } }
+  function drawFrame(cv, a, b, a0, b0, ymax){ const {x,w,h}=setup(cv); const L=4,R=4,T=6,B=14;
+    const X=t=>L+t*(w-L-R), Y=y=>T+(1-y/ymax)*(h-T-B);
+    x.strokeStyle='rgba(31,20,24,.15)'; x.lineWidth=1; x.beginPath(); x.moveTo(L,Y(0)); x.lineTo(w-R,Y(0)); x.stroke();
+    x.font='10px "JetBrains Mono", monospace'; x.fillStyle=C.soft; x.textBaseline='top';
+    [[0,'0'],[.5,'.5'],[1,'1']].forEach(([t,s])=>{ x.textAlign=t===0?'left':t===1?'right':'center'; x.fillText(s,X(t),h-B+2); });
+    const pr=betaGrid(a0,b0), po=betaGrid(a,b);
+    x.setLineDash([4,4]); x.strokeStyle=C.soft; x.lineWidth=1.4; x.beginPath(); pr.xs.forEach((t,i)=>{ const yy=Y(Math.min(pr.ys[i],ymax)); i?x.lineTo(X(t),yy):x.moveTo(X(t),yy); }); x.stroke(); x.setLineDash([]);
+    x.fillStyle='rgba(215,38,61,.25)'; x.beginPath(); x.moveTo(X(0),Y(0)); po.xs.forEach((t,i)=>x.lineTo(X(t),Y(Math.min(po.ys[i],ymax)))); x.lineTo(X(1),Y(0)); x.closePath(); x.fill();
+    x.strokeStyle=C.sindoor; x.lineWidth=2; x.beginPath(); po.xs.forEach((t,i)=>{ const yy=Y(Math.min(po.ys[i],ymax)); i?x.lineTo(X(t),yy):x.moveTo(X(t),yy); }); x.stroke();
+    if(revealed){ x.strokeStyle=C.marigold; x.lineWidth=2; x.beginPath(); x.moveTo(X(coinP),Y(0)); x.lineTo(X(coinP),T); x.stroke(); }
+  }
+  let revealed=false, lastFlips=[];
+  function render(animIdx=-1){
+    const fr=$('frames'); fr.innerHTML='';
+    // common y scale: max posterior height across shots
+    let ymax=3; shots.forEach(s=>{ const g=betaGrid(prior.a+s.k, prior.b+s.n-s.k); ymax=Math.max(ymax,Math.max(...g.ys)*1.08); });
+    ymax=Math.min(ymax,14);
+    for(let i=0;i<MAXF;i++){
+      const d=document.createElement('div');
+      if(i<shots.length){ const s=shots[i]; d.className='shot '+['t-blush','t-powder','t-pista','t-butter'][i]+(i===animIdx?' dev':'');
+        d.innerHTML=`<div class="cap"><span>SHOT ${i+1}</span><span>${s.k}/${s.n} heads</span></div><canvas aria-label="Posterior after ${s.n} flips"></canvas>`;
+        fr.appendChild(d); drawFrame(d.querySelector('canvas'), prior.a+s.k, prior.b+s.n-s.k, prior.a, prior.b, ymax);
+      } else { d.className='shot empty-shot'; d.textContent=i===shots.length?'next frame develops here':'·'; fr.appendChild(d); }
+    }
+    const s=shots[shots.length-1]||{k:0,n:0}; const a=prior.a+s.k, b=prior.b+s.n-s.k;
+    $('bPost').textContent=`Beta(${a}, ${b})`; $('bMean').textContent=(a/(a+b)).toFixed(4);
+    let m=0; const M=5000; for(let i=0;i<M;i++){ const g1=rgamma(a), g2=rgamma(b); m+=g1/(g1+g2); } $('bMC').textContent=(m/M).toFixed(4);
+    const g=betaGrid(a,b); $('bCI').textContent=`${quant(g,.025).toFixed(3)} – ${quant(g,.975).toFixed(3)}`;
+    $('coins').innerHTML=lastFlips.length?lastFlips.map(h=>`<span class="coin ${h?'h':'t'}">${h?'H':'T'}</span>`).join(''):'<span style="color:var(--on-curtain-soft);font-size:14px">no flips yet</span>';
+    $('shutter').innerHTML=shots.length>=MAXF?'New<small>STRIP</small>':'Snap<small>FLIP 5</small>';
+    $('reveal').textContent=revealed?`Coin θ = ${coinP.toFixed(2)}`:'Reveal the coin';
+    $('stripStamp').textContent=`BOOTH 102C · ${s.n} FLIPS`;
+  }
+  function snap(){
+    if(shots.length>=MAXF){ resetStrip(); return; }
+    lastFlips=[]; let k=0; for(let i=0;i<FLIPS;i++){ const h=rng()<coinP; lastFlips.push(h); if(h) k++; }
+    const prev=shots[shots.length-1]||{k:0,n:0}; shots.push({k:prev.k+k,n:prev.n+FLIPS}); flash(); render(shots.length-1);
+  }
+  function resetStrip(){ shots=[]; lastFlips=[]; revealed=false; newCoin(); render(); }
+  $('shutter').onclick=snap; $('newStrip').onclick=resetStrip;
+  $('reveal').onclick=()=>{ revealed=!revealed; render(); };
+  document.querySelectorAll('.sticker').forEach(b=>b.onclick=()=>{ document.querySelectorAll('.sticker').forEach(o=>o.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); prior={a:+b.dataset.a,b:+b.dataset.b}; render(); });
+
+
+  /* ---------- mandalas ---------- */
+  function mandala(svg){ let out=''; const rings=[[22,8,10,5,'#E0B04A'],[42,12,16,7,'#FF4F7B'],[64,16,18,8,'#F4A300'],[86,24,12,5,'#E0B04A']];
+    rings.forEach(([r,n,ry,rx,col])=>{ for(let i=0;i<n;i++){ const a=360/n*i; out+=`<ellipse cx="0" cy="${-r}" rx="${rx}" ry="${ry}" transform="rotate(${a})" fill="none" stroke="${col}" stroke-width="1.2"/>`; }
+      out+=`<circle r="${r+ry*0.2}" fill="none" stroke="${col}" stroke-width=".6" stroke-dasharray="1.5 3"/>`; });
+    for(let i=0;i<32;i++) out+=`<circle cx="0" cy="-97" r="1.6" fill="#FFE6A6" transform="rotate(${360/32*i})"/>`;
+    out+='<circle r="9" fill="none" stroke="#FFE6A6" stroke-width="1.5"/><circle r="3" fill="#D7263D"/>'; svg.innerHTML=out; }
+  mandala($('mand1')); mandala($('mand2'));
+
+  /* ---------- ambient: marigold petals, bokeh, mirror glints ---------- */
+  (function(){ const cv=$('bg'); const ctx=cv.getContext('2d'); let W,H,D; const R=Math.random;
+    const petals=[], bokeh=[], glints=[];
+    function size(){ D=Math.min(2,window.devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*D; cv.height=H*D; ctx.setTransform(D,0,0,D,0,0); }
+    size(); addEventListener('resize',size);
+    const pc=['#F4A300','#FF8A1F','#FFC531','#D7263D','#FF4F7B'];
+    for(let i=0;i<42;i++) petals.push({x:R()*W,y:R()*H,s:5+R()*9,vy:.25+R()*.7,vx:-.3+R()*.6,a:R()*6.3,va:-.02+R()*.04,c:pc[i%pc.length],ph:R()*6});
+    const bc=['255,79,123','244,163,0','140,240,255','199,155,255','224,176,74'];
+    for(let i=0;i<26;i++) bokeh.push({x:R()*W,y:R()*H,r:30+R()*90,c:bc[i%bc.length],ph:R()*6,sp:.002+R()*.004});
+    for(let i=0;i<34;i++) glints.push({x:R()*W,y:R()*H,ph:R()*6,sp:.02+R()*.04});
+    function frame(t){ ctx.clearRect(0,0,W,H);
+      ctx.globalCompositeOperation='lighter';
+      for(const b of bokeh){ const al=.05+.05*Math.sin(t*b.sp+b.ph); const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); g.addColorStop(0,`rgba(${b.c},${al*1.6})`); g.addColorStop(1,`rgba(${b.c},0)`); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,7); ctx.fill(); b.y-=.08; if(b.y<-b.r) b.y=H+b.r; }
+      for(const s of glints){ const k=Math.max(0,Math.sin(t*s.sp*0.06+s.ph)); if(k>.85){ const l=(k-.85)*60; ctx.strokeStyle=`rgba(255,240,200,${(k-.85)*5})`; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(s.x-l,s.y); ctx.lineTo(s.x+l,s.y); ctx.moveTo(s.x,s.y-l); ctx.lineTo(s.x,s.y+l); ctx.stroke(); } }
+      ctx.globalCompositeOperation='source-over';
+      for(const p of petals){ ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.scale(1,.55+.45*Math.sin(t*.002+p.ph)); ctx.fillStyle=p.c; ctx.globalAlpha=.55;
+        ctx.beginPath(); ctx.ellipse(0,0,p.s,p.s*.55,0,0,7); ctx.fill(); ctx.globalAlpha=.35; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(-p.s*.25,-p.s*.12,p.s*.35,p.s*.14,0,0,7); ctx.fill(); ctx.restore();
+        p.y+=p.vy; p.x+=p.vx+Math.sin(t*.001+p.ph)*.3; p.a+=p.va; if(p.y>H+20){p.y=-20;p.x=R()*W;} }
+      if(!reduce) requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+  })();
+
+  /* ---------- boot: start in a working state ---------- */
+  newCoin(); addDarts(1000);
+  for(let i=0;i<2;i++){ lastFlips=[]; let k=0; for(let j=0;j<FLIPS;j++){ const h=rng()<coinP; lastFlips.push(h); if(h) k++; } const p=shots[shots.length-1]||{k:0,n:0}; shots.push({k:p.k+k,n:p.n+FLIPS}); }
+  render();
+  let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(()=>{ drawPi(); render(); },120); });
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ drawPi(); render(); });
+})();
+</script>
+
+</body></html>
